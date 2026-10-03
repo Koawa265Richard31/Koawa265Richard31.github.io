@@ -1,0 +1,8 @@
+# 站点配置。TODO 项改完再部署。
+baseURL = "https://Koawa265Richard31.github.io/" # TODO: 启用自定义域名时同步改（如 https://blog.example.com/）
+languageCode = "zh-CN"
+title = "Koawa 工程日志" # TODO: 换成你想要的站点名
+theme = "PaperMod"
+hasCJKLanguage = true # 中文摘要与字长统计按 CJK 正确截断
+
+# 约定：样式定制、评论、统计全部后置（见 README backlog），第一篇文章上线前不动这里。
