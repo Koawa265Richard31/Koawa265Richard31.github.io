@@ -4,5 +4,72 @@ languageCode = "zh-CN"
 title = "Koawa 工程日志" # TODO: 换成你想要的站点名
 theme = "PaperMod"
 hasCJKLanguage = true # 中文摘要与字长统计按 CJK 正确截断
+copyright = "Koawa"
+pagination.pagerSize = 10
 
-# 约定：样式定制、评论、统计全部后置（见 README backlog），第一篇文章上线前不动这里。
+[params]
+env = "production"
+defaultTheme = "auto" # 跟随系统 + 右上角手动切换
+ShowReadingTime = true
+ShowWordCount = true
+ShowPostNavLinks = true # 文末上一篇/下一篇
+ShowBreadCrumbs = true
+ShowCodeCopyButtons = true
+ShowToc = true # 长技术文目录侧栏
+TocOpen = true
+ShowShareButtons = false # 保持干净，以后要开再开
+dateFormat = "2006-01-02"
+author = "Koawa" # TODO: 想展示的作者名
+description = "AI Agent 安全与平台工程笔记"
+
+# 首页作者卡
+[params.homeInfoParams]
+Title = "Koawa 工程日志"
+Content = "AI Agent 安全、运行时工程与验证纪律的实践笔记。第一篇文章正在写作中。"
+
+[params.assets]
+favicon = "/favicon.svg"
+
+# 社交图标（首页作者卡下方）
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/Koawa265Richard31"
+
+[[params.socialIcons]]
+name = "rss"
+url = "/index.xml"
+
+# 导航
+[[menu.main]]
+name = "文章"
+pageRef = "/posts/"
+weight = 1
+[[menu.main]]
+name = "归档"
+pageRef = "/archives/"
+weight = 2
+[[menu.main]]
+name = "标签"
+pageRef = "/tags/"
+weight = 3
+[[menu.main]]
+name = "搜索"
+pageRef = "/search/"
+weight = 4
+[[menu.main]]
+name = "关于"
+pageRef = "/about/"
+weight = 5
+
+# 搜索页需要 JSON 输出（PaperMod 内置 Fuse.js）
+[outputs]
+home = ["HTML", "RSS", "JSON"]
+
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    lineNos = false
+    noClasses = true
+    style = "monokai"
+    tabWidth = 2
