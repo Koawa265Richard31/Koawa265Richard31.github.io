@@ -1,4 +1,4 @@
-/* CJK 字体与细节打磨（PaperMod 官方扩展点：assets/css/extended/ 自动打包） */
+/* CJK font polish - PaperMod official extension point (assets/css/extended/) */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
@@ -9,4 +9,3 @@ code, pre, .highlight pre {
 ::selection {
   background: rgba(85, 165, 255, 0.28);
 }
-

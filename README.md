@@ -36,6 +36,14 @@ git config --global http.https://github.com.proxy http://127.0.0.1:7897   # 改�
 git -c http.https://github.com.proxy=http://127.0.0.1:7897 push -u origin main   # 或临时覆盖
 ```
 
+## 自定义样式（踩坑记录）
+
+- 自定义 CSS 放 **`assets/css/extended/*.css`**（PaperMod 官方通道，自动并入主题样式表）。
+- 验证是否打包进产物要 **`grep -i`**：CSS 压缩器会把字体名转小写（`microsoft yahei`），
+  大小写敏感 grep 会误报"没生效"。
+- 项目级 `layouts/_partials/*.html` 的 partial 覆盖在当前 Hugo 0.167 + PaperMod 组合下
+  **不生效**（已实测），样式一律走上面的 CSS 通道。
+
 ## Backlog（第一篇文章上线前不动）
 
 主题样式定制、关于页、评论、访问统计、自定义域名、Cloudflare 前置（大陆访问优化）。
