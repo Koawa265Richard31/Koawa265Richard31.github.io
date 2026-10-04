@@ -1,31 +1,29 @@
-/* Glass cards over a site-wide background image (v5: full-height sidebar drawer,
-   no top header, higher transparency). Swap the background via --bg-image. */
+/* Glass cards over a site-wide background image (v6: single --glass-alpha knob,
+   card tint switch, no top header). Requires a modern browser (2023+).
+   Swap the background via --bg-image. */
 :root {
   --bg-image: url("/images/background.jpg");
   --card-radius: 16px;
-  --glass-bg: rgba(255, 255, 255, 0.45);
-  --glass-bg-bar: rgba(255, 255, 255, 0.55);
-  --glass-bg-content: rgba(255, 255, 255, 0.68);
-  --glass-bg-hover: rgba(255, 255, 255, 0.58);
-  --glass-border: rgba(255, 255, 255, 0.6);
   --glass-blur: 20px;
+  /* knob-driven: all surfaces derive from these two */
+  --glass-tint: 255, 255, 255;
+  --glass-alpha: 55;
+  --glass-border: rgba(255, 255, 255, 0.6);
   --glass-shadow: 0 10px 30px rgba(20, 40, 60, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   --glass-shadow-hover: 0 16px 40px rgba(20, 40, 60, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.45);
   --sidebar-w: 270px;
 }
-/* PaperMod hangs the dark class on <body>, not <html> — must match both. */
-html.dark,
-body.dark {
-  --glass-bg: rgba(16, 18, 27, 0.4);
-  --glass-bg-bar: rgba(16, 18, 27, 0.48);
-  --glass-bg-content: rgba(16, 18, 27, 0.58);
-  --glass-bg-hover: rgba(22, 25, 36, 0.52);
+/* Dark card tint (independent of PaperMod page theme): dark glass + light card text */
+html.card-dark {
+  --glass-tint: 16, 18, 27;
   --glass-border: rgba(255, 255, 255, 0.14);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --glass-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --content: #dbe0e7;
+  --secondary: #9aa5b1;
 }
 
-/* Fixed background layer (body::before avoids iOS background-attachment bugs) */
+/* Fixed background layer */
 body::before {
   content: "";
   position: fixed;
@@ -37,48 +35,50 @@ body::before {
   background-repeat: no-repeat;
 }
 
-/* Top header bar: retired — nav & theme toggle moved into the sidebar */
+/* Top header retired — nav & controls live in the sidebar */
 .header { display: none; }
-.footer {
-  background: var(--glass-bg-bar);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
-  border-top: 1px solid var(--glass-border);
-}
 
-/* Content cards */
+/* Glass surface helper tiers (alpha offsets from the knob value) */
+.footer,
+.profile-sidebar {
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 8%, 92%)));
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+}
+.footer { border-top: 1px solid var(--glass-border); }
+
 .main .post-entry,
 .main .first-entry,
-.main .post-single,
 .main .pagination,
 .toc {
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1%));
   border: 1px solid var(--glass-border);
   border-radius: var(--card-radius);
   backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow: var(--glass-shadow);
   margin-bottom: 1.4rem;
-}
-.main .post-entry,
-.main .first-entry,
-.main .pagination,
-.toc {
-  background: var(--glass-bg);
-  box-shadow: var(--glass-shadow);
-}
-.main .post-single {
-  background: var(--glass-bg-content);
-  box-shadow: var(--glass-shadow);
-}
-.main .post-entry,
-.main .first-entry,
-.main .post-single,
-.toc {
   border-top-color: rgba(255, 255, 255, 0.75);
 }
+html.card-dark .main .post-entry,
+html.card-dark .main .first-entry,
+html.card-dark .main .pagination,
+html.card-dark .toc { border-top-color: rgba(255, 255, 255, 0.22); }
+
+.main .post-single {
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 18%, 96%)));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 1.4rem;
+  border-top-color: rgba(255, 255, 255, 0.75);
+}
+html.card-dark .main .post-single { border-top-color: rgba(255, 255, 255, 0.22); }
 
 .main .post-entry,
 .main .first-entry { padding: 1.3rem 1.6rem; }
-
 .breadcrumbs { color: var(--content); opacity: 0.75; }
 
 /* Entry hover: lift + glow */
@@ -88,7 +88,7 @@ body::before {
 .main .post-entry:hover {
   transform: translateY(-3px);
   box-shadow: var(--glass-shadow-hover);
-  background: var(--glass-bg-hover);
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 10%, 95%)));
 }
 
 /* Page load fade-in */
@@ -109,22 +109,14 @@ body::before {
   align-items: center;
   padding: 1.8rem 1.1rem 1.4rem;
   overflow-y: auto;
-  background: var(--glass-bg-bar);
   border-right: 1px solid var(--glass-border);
-  backdrop-filter: blur(22px) saturate(1.4);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4);
   box-shadow: var(--glass-shadow);
   transform: translateX(-100%);
   transition: transform 0.32s ease;
 }
 .profile-sidebar.open { transform: translateX(0); }
 
-.sidebar-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-bottom: 1.1rem;
-  text-align: center;
-}
+.sidebar-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 1.1rem; text-align: center; }
 .sidebar-title a { color: var(--content); text-decoration: none; }
 
 .profile-avatar {
@@ -142,9 +134,7 @@ body::before {
   font-size: 0.85rem; line-height: 1.6;
   color: var(--secondary); margin: 0.3rem 0 0.8rem; text-align: center;
 }
-.profile-links {
-  display: flex; flex-direction: column; gap: 0.3rem; width: 100%;
-}
+.profile-links { display: flex; flex-direction: column; gap: 0.3rem; width: 100%; }
 .profile-links a {
   display: block;
   padding: 0.4rem 0.9rem;
@@ -154,39 +144,82 @@ body::before {
   text-decoration: none;
   transition: background 0.2s ease, transform 0.2s ease;
 }
-.profile-links a:hover { background: var(--glass-bg-hover); transform: translateX(3px); }
+.profile-links a:hover {
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 12%, 95%)));
+  transform: translateX(3px);
+}
 
-.sidebar-theme {
+/* ---- Glass controls: transparency knob + tint switch ---- */
+.sidebar-controls {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding-top: 0.8rem;
+}
+.glass-knob {
+  position: relative;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 15%, 95%)));
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+.glass-knob:active { transform: scale(0.92); }
+.glass-knob::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 8px; height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--secondary);
+}
+.knob-needle {
+  position: absolute;
+  left: 50%; top: 7px;
+  width: 2px; height: 14px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--content);
+  transform: rotate(var(--knob-rot, 45deg));
+  transform-origin: 50% 17px;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); /* springy snap */
+}
+.knob-label { font-size: 0.78rem; color: var(--secondary); }
+.glass-tint {
   padding: 0.45rem 1rem;
   border-radius: 10px;
   border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1%));
   color: var(--content);
   font-size: 0.9rem;
   cursor: pointer;
   transition: background 0.2s ease;
 }
-.sidebar-theme:hover { background: var(--glass-bg-hover); }
+.glass-tint:hover { background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 12%, 95%))); }
 
-/* Collapse / expand button; rides the sidebar's right edge when open */
+/* Menu button (replaces the chevron) */
 .sidebar-toggle {
   position: fixed;
   top: 14px; left: 14px;
   z-index: 60;
-  width: 42px; height: 42px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   border: 1px solid var(--glass-border);
-  background: var(--glass-bg-bar);
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 8%, 92%)));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--content);
-  font-size: 20px;
+  font-size: 19px;
   line-height: 1;
   cursor: pointer;
   transition: left 0.32s ease, background 0.2s ease;
 }
-.sidebar-toggle:hover { background: var(--glass-bg-hover); }
+.sidebar-toggle:hover { background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 12%, 95%))); }
 .profile-sidebar.open + .sidebar-toggle { left: calc(var(--sidebar-w) + 14px); }
 
 /* ---- Content column adaptivity ---- */
@@ -203,5 +236,5 @@ body::before {
 
 /* Respect reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .main, .main .post-entry, .profile-sidebar, .sidebar-toggle { animation: none; transition: none; }
+  .main, .main .post-entry, .profile-sidebar, .sidebar-toggle, .knob-needle { animation: none; transition: none; }
 }
