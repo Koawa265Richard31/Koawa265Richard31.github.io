@@ -39,10 +39,10 @@ git -c http.https://github.com.proxy=http://127.0.0.1:7897 push -u origin main  
 ## 自定义样式（踩坑记录）
 
 - 自定义 CSS 放 **`assets/css/extended/*.css`**（PaperMod 官方通道，自动并入主题样式表）。
-- 验证是否打包进产物要 **`grep -i`**：CSS 压缩器会把字体名转小写（`microsoft yahei`），
-  大小写敏感 grep 会误报"没生效"。
-- 项目级 `layouts/_partials/*.html` 的 partial 覆盖在当前 Hugo 0.167 + PaperMod 组合下
-  **不生效**（已实测），样式一律走上面的 CSS 通道。
+- 自定义 head 内容（内联样式/JS，如滚动动画）放 **`layouts/_partials/extend_head.html`**——该通道
+  2026-10-04 复验**生效**；此前误判为不生效，原因是双假阴性：HTML 压缩器会删除注释探针、
+  CSS 压缩器会把值小写化，而当时用大小写敏感 grep 验证。
+- 验证是否打包进产物一律 **`grep -i`**，探针别用 HTML 注释（会被压缩删除），用 CSS 规则当标记。
 
 ## Backlog（第一篇文章上线前不动）
 
