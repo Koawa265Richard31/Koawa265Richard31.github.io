@@ -1,13 +1,45 @@
-<!-- Left profile sidebar (Stack-inspired). Fixed to the left gutter on wide screens,
-     hidden below 1320px to avoid overlapping the content column. -->
-<aside class="profile-sidebar" aria-label="站长信息">
+<!-- Left sidebar drawer (full-height, Stack-inspired): site title, profile, nav,
+     theme toggle, collapse/expand button. Header bar is hidden by CSS. -->
+<aside class="profile-sidebar" aria-label="站点导航与站长信息">
+  <div class="sidebar-title"><a href="/">Koawa 工程日志</a></div>
   <img class="profile-avatar" src="/images/avatar.jpg" alt="Koawa 的头像" width="104" height="104" loading="lazy">
   <div class="profile-name">Koawa</div>
   <div class="profile-bio">AI Agent 安全<br>平台工程 · 验证纪律</div>
   <nav class="profile-links">
-    <a href="https://github.com/Koawa265Richard31" rel="me">GitHub</a>
-    <a href="/about/">关于</a>
+    <a href="/">首页</a>
+    <a href="/posts/">文章</a>
     <a href="/archives/">归档</a>
+    <a href="/tags/">标签</a>
+    <a href="/search/">搜索</a>
+    <a href="/about/">关于</a>
+    <a href="https://github.com/Koawa265Richard31" rel="me">GitHub</a>
     <a href="/index.xml">RSS</a>
   </nav>
+  <button class="sidebar-theme" id="sidebar-theme-toggle" type="button" aria-label="切换明暗模式">🌓 明暗</button>
 </aside>
+<button class="sidebar-toggle" type="button" aria-label="展开侧栏">»</button>
+<script>
+(function () {
+  var sb = document.querySelector('.profile-sidebar');
+  var btn = document.querySelector('.sidebar-toggle');
+  var wide = window.matchMedia('(min-width: 1440px)');
+  var KEY = 'sidebar-open';
+  function setOpen(o) {
+    sb.classList.toggle('open', o);
+    btn.textContent = o ? '«' : '»';
+    btn.setAttribute('aria-label', o ? '收起侧栏' : '展开侧栏');
+    try { localStorage.setItem(KEY, o ? '1' : '0'); } catch (e) {}
+  }
+  var stored = null;
+  try { stored = localStorage.getItem(KEY); } catch (e) {}
+  setOpen(stored !== null ? stored === '1' : wide.matches);
+  btn.addEventListener('click', function () { setOpen(!sb.classList.contains('open')); });
+
+  /* theme toggle consistent with PaperMod (body.dark + localStorage.theme) */
+  var tbtn = document.getElementById('sidebar-theme-toggle');
+  tbtn.addEventListener('click', function () {
+    var dark = document.body.classList.toggle('dark');
+    try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+  });
+})();
+</script>

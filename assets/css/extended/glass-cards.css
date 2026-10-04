@@ -1,29 +1,28 @@
-/* Glass cards over a site-wide background image (v3: readability-tuned).
-   Swap the background: put your image in static/images/, change --bg-image below.
-   Three opacity tiers: --glass-bg (home cards, airy) / --glass-bg-bar (header/footer)
-   / --glass-bg-content (article reading surface, must stay readable). */
+/* Glass cards over a site-wide background image (v5: full-height sidebar drawer,
+   no top header, higher transparency). Swap the background via --bg-image. */
 :root {
   --bg-image: url("/images/background.jpg");
   --card-radius: 16px;
-  --glass-bg: rgba(255, 255, 255, 0.58);
-  --glass-bg-bar: rgba(255, 255, 255, 0.72);
-  --glass-bg-content: rgba(255, 255, 255, 0.8);
-  --glass-bg-hover: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-bar: rgba(255, 255, 255, 0.55);
+  --glass-bg-content: rgba(255, 255, 255, 0.68);
+  --glass-bg-hover: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.6);
   --glass-blur: 20px;
-  --glass-shadow: 0 10px 30px rgba(20, 40, 60, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  --glass-shadow-hover: 0 16px 40px rgba(20, 40, 60, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --glass-shadow: 0 10px 30px rgba(20, 40, 60, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  --glass-shadow-hover: 0 16px 40px rgba(20, 40, 60, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --sidebar-w: 270px;
 }
 /* PaperMod hangs the dark class on <body>, not <html> — must match both. */
 html.dark,
 body.dark {
-  --glass-bg: rgba(16, 18, 27, 0.5);
-  --glass-bg-bar: rgba(16, 18, 27, 0.55);
-  --glass-bg-content: rgba(16, 18, 27, 0.68);
-  --glass-bg-hover: rgba(22, 25, 36, 0.62);
+  --glass-bg: rgba(16, 18, 27, 0.4);
+  --glass-bg-bar: rgba(16, 18, 27, 0.48);
+  --glass-bg-content: rgba(16, 18, 27, 0.58);
+  --glass-bg-hover: rgba(22, 25, 36, 0.52);
   --glass-border: rgba(255, 255, 255, 0.14);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --glass-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Fixed background layer (body::before avoids iOS background-attachment bugs) */
@@ -38,16 +37,16 @@ body::before {
   background-repeat: no-repeat;
 }
 
-/* Header/footer: stronger glass bars (thin, so opacity is cheap) */
-.header, .footer {
+/* Top header bar: retired — nav & theme toggle moved into the sidebar */
+.header { display: none; }
+.footer {
   background: var(--glass-bg-bar);
   backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  border-top: 1px solid var(--glass-border);
 }
-.header { border-bottom: 1px solid var(--glass-border); }
-.footer { border-top: 1px solid var(--glass-border); }
 
-/* All card surfaces */
+/* Content cards */
 .main .post-entry,
 .main .first-entry,
 .main .post-single,
@@ -59,7 +58,6 @@ body::before {
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
   margin-bottom: 1.4rem;
 }
-/* Tier assignment */
 .main .post-entry,
 .main .first-entry,
 .main .pagination,
@@ -71,20 +69,19 @@ body::before {
   background: var(--glass-bg-content);
   box-shadow: var(--glass-shadow);
 }
-
-/* Entry cards: breathing room from the card edge */
 .main .post-entry,
-.main .first-entry {
-  padding: 1.3rem 1.6rem;
+.main .first-entry,
+.main .post-single,
+.toc {
+  border-top-color: rgba(255, 255, 255, 0.75);
 }
 
-/* Breadcrumbs: lift out of the wash */
-.breadcrumbs {
-  color: var(--content);
-  opacity: 0.75;
-}
+.main .post-entry,
+.main .first-entry { padding: 1.3rem 1.6rem; }
 
-/* Entry hover: lift + glow (the animation layer) */
+.breadcrumbs { color: var(--content); opacity: 0.75; }
+
+/* Entry hover: lift + glow */
 .main .post-entry {
   transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
 }
@@ -99,83 +96,98 @@ body::before {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: none; }
 }
-.main {
-  animation: glassPageIn 0.4s ease both;
-}
+.main { animation: glassPageIn 0.4s ease both; }
 
-/* Respect reduced-motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .main, .main .post-entry, .profile-sidebar { animation: none; transition: none; }
-}
-
-/* ---- Left profile sidebar (Stack-inspired, in the left gutter) ---- */
+/* ---- Full-height sidebar drawer ---- */
 .profile-sidebar {
-  display: none; /* narrow screens: no gutter to spare */
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.8rem 1.1rem 1.4rem;
+  overflow-y: auto;
+  background: var(--glass-bg-bar);
+  border-right: 1px solid var(--glass-border);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  box-shadow: var(--glass-shadow);
+  transform: translateX(-100%);
+  transition: transform 0.32s ease;
 }
-@media (min-width: 1320px) {
-  .profile-sidebar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    position: fixed;
-    left: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 240px;
-    padding: 1.6rem 1.2rem;
-    text-align: center;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-top-color: rgba(255, 255, 255, 0.75);
-    border-radius: var(--card-radius);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
-    box-shadow: var(--glass-shadow);
-    animation: glassPageIn 0.5s ease both;
-  }
-  .profile-avatar {
-    width: 104px;
-    height: 104px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 14px rgba(20, 40, 60, 0.25);
-    margin-bottom: 0.4rem;
-    transition: transform 0.25s ease;
-  }
-  .profile-avatar:hover { transform: scale(1.06); }
-  .profile-name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--content);
-  }
-  .profile-bio {
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: var(--secondary);
-    margin-bottom: 0.6rem;
-  }
-  .profile-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    width: 100%;
-  }
-  .profile-links a {
-    display: block;
-    padding: 0.35rem 0.8rem;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    color: var(--content);
-    text-decoration: none;
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-  .profile-links a:hover {
-    background: var(--glass-bg-hover);
-    transform: translateX(3px);
-  }
+.profile-sidebar.open { transform: translateX(0); }
+
+.sidebar-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 1.1rem;
+  text-align: center;
 }
+.sidebar-title a { color: var(--content); text-decoration: none; }
+
+.profile-avatar {
+  width: 104px; height: 104px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 14px rgba(20, 40, 60, 0.25);
+  margin-bottom: 0.5rem;
+  transition: transform 0.25s ease;
+}
+.profile-avatar:hover { transform: scale(1.06); }
+.profile-name { font-size: 1.2rem; font-weight: 700; color: var(--content); }
+.profile-bio {
+  font-size: 0.85rem; line-height: 1.6;
+  color: var(--secondary); margin: 0.3rem 0 0.8rem; text-align: center;
+}
+.profile-links {
+  display: flex; flex-direction: column; gap: 0.3rem; width: 100%;
+}
+.profile-links a {
+  display: block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: var(--content);
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.profile-links a:hover { background: var(--glass-bg-hover); transform: translateX(3px); }
+
+.sidebar-theme {
+  margin-top: auto;
+  padding: 0.45rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--content);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.sidebar-theme:hover { background: var(--glass-bg-hover); }
+
+/* Collapse / expand button; rides the sidebar's right edge when open */
+.sidebar-toggle {
+  position: fixed;
+  top: 14px; left: 14px;
+  z-index: 60;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-bar);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--content);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: left 0.32s ease, background 0.2s ease;
+}
+.sidebar-toggle:hover { background: var(--glass-bg-hover); }
+.profile-sidebar.open + .sidebar-toggle { left: calc(var(--sidebar-w) + 14px); }
 
 /* ---- Content column adaptivity ---- */
 .main {
@@ -187,4 +199,9 @@ body::before {
   .main { padding-inline: 0.6rem; }
   .main .post-entry,
   .main .first-entry { padding: 1.1rem 1.1rem; }
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .main, .main .post-entry, .profile-sidebar, .sidebar-toggle { animation: none; transition: none; }
 }
