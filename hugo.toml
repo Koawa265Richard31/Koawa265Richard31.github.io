@@ -4,7 +4,7 @@ languageCode = "zh-CN"
 title = "Koawa 工程日志" # TODO: 换成你想要的站点名
 theme = "PaperMod"
 hasCJKLanguage = true # 中文摘要与字长统计按 CJK 正确截断
-copyright = "Koawa · 背景插画：Kaya（pixiv 102666183）"
+copyright = "Koawa265 · 背景插画：Kaya（pixiv 102666183）"
 pagination.pagerSize = 10
 
 [params]
@@ -19,7 +19,7 @@ ShowToc = true # 长技术文目录侧栏
 TocOpen = true
 ShowShareButtons = false # 保持干净，以后要开再开
 dateFormat = "2006-01-02"
-author = "Koawa" # TODO: 想展示的作者名
+author = "Koawa265"
 description = "AI Agent 安全与平台工程笔记"
 
 # 首页作者卡

@@ -44,6 +44,26 @@ git -c http.https://github.com.proxy=http://127.0.0.1:7897 push -u origin main  
   CSS 压缩器会把值小写化，而当时用大小写敏感 grep 验证。
 - 验证是否打包进产物一律 **`grep -i`**，探针别用 HTML 注释（会被压缩删除），用 CSS 规则当标记。
 
+## 配置速查表（改哪儿找这儿）
+
+| 想改什么 | 文件 | 位置/字段 |
+|---|---|---|
+| 浏览器标签页站名 | `hugo.toml` | `title` |
+| 侧栏顶部站名 | `layouts/_partials/extend_footer.html` | `.sidebar-title` 一行 |
+| 头像 | `static/images/avatar.jpg` | 直接换文件（同名覆盖） |
+| 侧栏名字 | `layouts/_partials/extend_footer.html` | `.profile-name` |
+| 侧栏菜单/链接 | 同上 | `.profile-links` 里的 `<a href="…">` 列表 |
+| 背景图 | `assets/css/extended/glass-cards.css` | `--bg-image` 一行 + 图放 `static/images/` |
+| 玻璃透明度档位 | `layouts/_partials/extend_footer.html` | JS 里 `LEVELS = [...]` 数组 |
+| 玻璃模糊/圆角 | `assets/css/extended/glass-cards.css` | `--glass-blur` / `--card-radius` |
+| 深色玻璃配色 | 同上 | `html.card-dark { … }` 段 |
+| 页脚版权行 | `hugo.toml` | `copyright` |
+| 文章作者名 | `hugo.toml` | `author`（params 段） |
+| 网站描述（SEO） | `hugo.toml` | `description` |
+| 自我介绍 | `content/about.md` | 正文（含画师署名） |
+| 写新文章 | `content/posts/xxx.md` | front matter：`title/date/tags/draft` |
+| 侧栏宽度/内容列宽度 | `assets/css/extended/glass-cards.css` | `--sidebar-w` / `--mw` 那几行 |
+
 ## Backlog（第一篇文章上线前不动）
 
 主题样式定制、关于页、评论、访问统计、自定义域名、Cloudflare 前置（大陆访问优化）。
