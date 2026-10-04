@@ -105,5 +105,86 @@ body::before {
 
 /* Respect reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .main, .main .post-entry { animation: none; transition: none; }
+  .main, .main .post-entry, .profile-sidebar { animation: none; transition: none; }
+}
+
+/* ---- Left profile sidebar (Stack-inspired, in the left gutter) ---- */
+.profile-sidebar {
+  display: none; /* narrow screens: no gutter to spare */
+}
+@media (min-width: 1320px) {
+  .profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 240px;
+    padding: 1.6rem 1.2rem;
+    text-align: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-top-color: rgba(255, 255, 255, 0.75);
+    border-radius: var(--card-radius);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+    box-shadow: var(--glass-shadow);
+    animation: glassPageIn 0.5s ease both;
+  }
+  .profile-avatar {
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 14px rgba(20, 40, 60, 0.25);
+    margin-bottom: 0.4rem;
+    transition: transform 0.25s ease;
+  }
+  .profile-avatar:hover { transform: scale(1.06); }
+  .profile-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--content);
+  }
+  .profile-bio {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--secondary);
+    margin-bottom: 0.6rem;
+  }
+  .profile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    width: 100%;
+  }
+  .profile-links a {
+    display: block;
+    padding: 0.35rem 0.8rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    color: var(--content);
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .profile-links a:hover {
+    background: var(--glass-bg-hover);
+    transform: translateX(3px);
+  }
+}
+
+/* ---- Content column adaptivity ---- */
+.main {
+  max-width: 780px;
+  margin-inline: auto;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .main { padding-inline: 0.6rem; }
+  .main .post-entry,
+  .main .first-entry { padding: 1.1rem 1.1rem; }
 }
