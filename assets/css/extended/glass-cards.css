@@ -1,0 +1,76 @@
+/* Stack-inspired glass cards over a site-wide background image.
+   Swap the background: put your image in static/images/, change --bg-image below. */
+:root {
+  --bg-image: url("/images/background.svg");
+  --card-radius: 14px;
+  --glass-bg: rgba(255, 255, 255, 0.66);
+  --glass-bg-hover: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  --glass-shadow-hover: 0 14px 34px rgba(0, 0, 0, 0.2);
+}
+html.dark {
+  --glass-bg: rgba(17, 19, 27, 0.62);
+  --glass-bg-hover: rgba(26, 29, 40, 0.74);
+  --glass-border: rgba(255, 255, 255, 0.09);
+}
+
+/* Fixed background layer (body::before avoids iOS background-attachment bugs) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Header/footer become glass bars */
+.header, .footer {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+.header { border-bottom: 1px solid var(--glass-border); }
+.footer { border-top: 1px solid var(--glass-border); }
+
+/* Content cards: home entries, home-info, article page, TOC */
+.main .post-entry,
+.main .first-entry,
+.main .post-single,
+.main .pagination,
+.toc {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(14px) saturate(1.35);
+  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 1.4rem;
+}
+
+/* Entry hover: lift + glow (the animation layer) */
+.main .post-entry {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+.main .post-entry:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--glass-shadow-hover);
+  background: var(--glass-bg-hover);
+}
+
+/* Page load fade-in */
+@keyframes glassPageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.main {
+  animation: glassPageIn 0.4s ease both;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .main, .main .post-entry { animation: none; transition: none; }
+}
