@@ -4,7 +4,7 @@ languageCode = "zh-CN"
 title = "Koawa 工程日志" # TODO: 换成你想要的站点名
 theme = "PaperMod"
 hasCJKLanguage = true # 中文摘要与字长统计按 CJK 正确截断
-copyright = "Koawa265 · 背景插画：Kaya（pixiv 102666183）"
+copyright = "Koawa265 · 背景插画署名见关于页"
 pagination.pagerSize = 10
 
 [params]
