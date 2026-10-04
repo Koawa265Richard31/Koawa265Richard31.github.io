@@ -34,7 +34,7 @@
   var SKEY = 'sidebar-open';
 
   function setOpen(o) {
-    wrap.classList.toggle('open', o);
+    wrap.classList.toggle('open', o); document.documentElement.classList.toggle('sb-open', o);
     handle.textContent = o ? '‹' : '›';
     handle.setAttribute('aria-label', o ? '收起侧栏' : '展开侧栏');
     try { localStorage.setItem(SKEY, o ? '1' : '0'); } catch (e) {}
