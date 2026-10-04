@@ -9,3 +9,45 @@ code, pre, .highlight pre {
 ::selection {
   background: rgba(85, 165, 255, 0.28);
 }
+
+/* ---- Reading experience: CJK typography, tables, quotes ---- */
+html {
+  scroll-behavior: smooth; /* TOC 跳转平滑 */
+}
+.post-content {
+  line-height: 1.85; /* 中文长文行距 */
+}
+
+/* 表格：边框 + 表头底色 + 斑马纹，窄屏可横向滚动 */
+.post-content table {
+  border-collapse: collapse;
+  margin: 1.2em 0;
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.post-content th,
+.post-content td {
+  border: 1px solid var(--border, rgba(128, 128, 128, 0.35));
+  padding: 0.45em 0.9em;
+}
+.post-content thead th {
+  background: var(--code-bg, rgba(128, 128, 128, 0.12));
+}
+.post-content tbody tr:nth-child(even) {
+  background: var(--code-bg, rgba(128, 128, 128, 0.07));
+}
+
+/* 引用块：左侧强调线 */
+.post-content blockquote {
+  border-left: 3px solid var(--secondary, #5bad90);
+  margin: 1.2em 0;
+  padding: 0.1em 1em;
+  color: var(--secondary, #4a6b5c);
+}
+
+/* 行内代码：轻底色圆角（块级代码保持主题样式不动） */
+.post-content code {
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}

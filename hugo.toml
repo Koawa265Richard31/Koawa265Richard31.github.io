@@ -27,6 +27,12 @@ description = "AI Agent 安全与平台工程笔记"
 Title = "Koawa 工程日志"
 Content = "AI Agent 安全、运行时工程与验证纪律的实践笔记。第一篇文章正在写作中。"
 
+# 页头：图标 + 站名
+[params.label]
+icon = "/favicon.svg"
+iconHeight = 28
+text = "Koawa 工程日志"
+
 [params.assets]
 favicon = "/favicon.svg"
 
