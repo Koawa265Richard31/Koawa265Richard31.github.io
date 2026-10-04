@@ -1,51 +1,54 @@
-<!-- Left sidebar drawer: site title, profile, nav, glass controls
-     (tint switch + transparency knob), menu button. Top header hidden by CSS. -->
-<aside class="profile-sidebar" aria-label="站点导航与站长信息">
-  <div class="sidebar-title"><a href="/">Koawa 工程日志</a></div>
-  <img class="profile-avatar" src="/images/avatar.jpg" alt="Koawa 的头像" width="104" height="104" loading="lazy">
-  <div class="profile-name">Koawa</div>
-  <div class="profile-bio">AI Agent 安全<br>平台工程 · 验证纪律</div>
-  <nav class="profile-links">
-    <a href="/">首页</a>
-    <a href="/posts/">文章</a>
-    <a href="/archives/">归档</a>
-    <a href="/tags/">标签</a>
-    <a href="/search/">搜索</a>
-    <a href="/about/">关于</a>
-    <a href="https://github.com/Koawa265Richard31" rel="me">GitHub</a>
-    <a href="/index.xml">RSS</a>
-  </nav>
-  <div class="sidebar-controls">
-    <button id="glass-knob" class="glass-knob" type="button" aria-label="调节卡片透明度，每按一次调一档">
-      <span class="knob-needle"></span>
-    </button>
-    <div class="knob-label">透明度 <span id="knob-level">2/4</span></div>
-    <button id="glass-tint" class="glass-tint" type="button" aria-label="切换卡片色泽">卡片色泽</button>
-  </div>
-</aside>
-<button class="sidebar-toggle" type="button" aria-label="展开侧栏">☰</button>
+<!-- Left sidebar drawer: site title, profile, nav, glass controls.
+     Handle (pull tab) rides the panel edge; top header hidden by CSS. -->
+<div class="sidebar-wrap" id="sidebar-wrap">
+  <aside class="profile-sidebar" aria-label="站点导航与站长信息">
+    <div class="sidebar-title"><a href="/">Koawa 工程日志</a></div>
+    <img class="profile-avatar" src="/images/avatar.jpg" alt="Koawa 的头像" width="104" height="104" loading="lazy">
+    <div class="profile-name">Koawa</div>
+    <div class="profile-bio">AI Agent 安全<br>平台工程 · 验证纪律</div>
+    <nav class="profile-links">
+      <a href="/">首页</a>
+      <a href="/posts/">文章</a>
+      <a href="/archives/">归档</a>
+      <a href="/tags/">标签</a>
+      <a href="/search/">搜索</a>
+      <a href="/about/">关于</a>
+      <a href="https://github.com/Koawa265Richard31" rel="me">GitHub</a>
+      <a href="/index.xml">RSS</a>
+    </nav>
+    <div class="sidebar-controls">
+      <button id="glass-knob" class="glass-knob" type="button" aria-label="调节卡片透明度，每按一次调一档">
+        <span class="knob-needle"></span>
+      </button>
+      <div class="knob-label">透明度 <span id="knob-level">4/8</span></div>
+      <button id="glass-tint" class="glass-tint" type="button" aria-label="切换卡片色泽">卡片色泽</button>
+    </div>
+  </aside>
+  <button class="sidebar-handle" id="sidebar-handle" type="button" aria-label="展开侧栏">›</button>
+</div>
 <script>
 (function () {
-  var sb = document.querySelector('.profile-sidebar');
-  var btn = document.querySelector('.sidebar-toggle');
+  var wrap = document.getElementById('sidebar-wrap');
+  var handle = document.getElementById('sidebar-handle');
   var wide = window.matchMedia('(min-width: 1440px)');
   var SKEY = 'sidebar-open';
 
   function setOpen(o) {
-    sb.classList.toggle('open', o);
-    btn.setAttribute('aria-label', o ? '收起侧栏' : '展开侧栏');
+    wrap.classList.toggle('open', o);
+    handle.textContent = o ? '‹' : '›';
+    handle.setAttribute('aria-label', o ? '收起侧栏' : '展开侧栏');
     try { localStorage.setItem(SKEY, o ? '1' : '0'); } catch (e) {}
   }
   var stored = null;
   try { stored = localStorage.getItem(SKEY); } catch (e) {}
   setOpen(stored !== null ? stored === '1' : wide.matches);
-  btn.addEventListener('click', function () { setOpen(!sb.classList.contains('open')); });
+  handle.addEventListener('click', function () { setOpen(!wrap.classList.contains('open')); });
 
-  /* Glass transparency knob: 4 levels, one step per press, needle rotates. */
-  var LEVELS = [40, 55, 70, 85];
+  /* Transparency knob: 8 fine steps, needle rotates 45 deg per press, alpha animates. */
+  var LEVELS = [25, 35, 45, 55, 65, 75, 85, 95];
   var knob = document.getElementById('glass-knob');
   var lvl = document.getElementById('knob-level');
-  var levelIdx = 1;
+  var levelIdx = 3;
   try {
     var li = parseInt(localStorage.getItem('glass-level'), 10);
     if (li >= 0 && li < LEVELS.length) levelIdx = li;
@@ -53,7 +56,7 @@
   function applyLevel(i) {
     document.documentElement.style.setProperty('--glass-alpha', LEVELS[i]);
     knob.style.setProperty('--knob-rot', (i * 45) + 'deg');
-    lvl.textContent = (i + 1) + '/4';
+    lvl.textContent = (i + 1) + '/' + LEVELS.length;
     try { localStorage.setItem('glass-level', String(i)); } catch (e) {}
   }
   applyLevel(levelIdx);
