@@ -1,23 +1,29 @@
-/* Glass cards over a site-wide background image (v2: tuned for bright anime artwork).
-   Swap the background: put your image in static/images/, change --bg-image below. */
+/* Glass cards over a site-wide background image (v3: readability-tuned).
+   Swap the background: put your image in static/images/, change --bg-image below.
+   Three opacity tiers: --glass-bg (home cards, airy) / --glass-bg-bar (header/footer)
+   / --glass-bg-content (article reading surface, must stay readable). */
 :root {
   --bg-image: url("/images/background.jpg");
   --card-radius: 16px;
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-bg-hover: rgba(255, 255, 255, 0.68);
-  --glass-border: rgba(255, 255, 255, 0.6);
-  --glass-shadow: 0 8px 26px rgba(20, 40, 60, 0.18);
-  --glass-shadow-hover: 0 14px 38px rgba(20, 40, 60, 0.26);
-  --glass-blur: 18px;
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-bar: rgba(255, 255, 255, 0.72);
+  --glass-bg-content: rgba(255, 255, 255, 0.8);
+  --glass-bg-hover: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-blur: 20px;
+  --glass-shadow: 0 10px 30px rgba(20, 40, 60, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  --glass-shadow-hover: 0 16px 40px rgba(20, 40, 60, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 /* PaperMod hangs the dark class on <body>, not <html> — must match both. */
 html.dark,
 body.dark {
-  --glass-bg: rgba(16, 18, 27, 0.42);
-  --glass-bg-hover: rgba(22, 25, 36, 0.55);
+  --glass-bg: rgba(16, 18, 27, 0.5);
+  --glass-bg-bar: rgba(16, 18, 27, 0.55);
+  --glass-bg-content: rgba(16, 18, 27, 0.68);
+  --glass-bg-hover: rgba(22, 25, 36, 0.62);
   --glass-border: rgba(255, 255, 255, 0.14);
-  --glass-shadow: 0 8px 26px rgba(0, 0, 0, 0.32);
-  --glass-shadow-hover: 0 14px 38px rgba(0, 0, 0, 0.4);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Fixed background layer (body::before avoids iOS background-attachment bugs) */
@@ -32,36 +38,50 @@ body::before {
   background-repeat: no-repeat;
 }
 
-/* Header/footer become glass bars */
+/* Header/footer: stronger glass bars (thin, so opacity is cheap) */
 .header, .footer {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  background: var(--glass-bg-bar);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
 }
 .header { border-bottom: 1px solid var(--glass-border); }
 .footer { border-top: 1px solid var(--glass-border); }
 
-/* Content cards: home entries, home-info, article page, pagination, TOC */
+/* All card surfaces */
 .main .post-entry,
 .main .first-entry,
 .main .post-single,
 .main .pagination,
 .toc {
-  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--card-radius);
   backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
-  box-shadow: var(--glass-shadow);
   margin-bottom: 1.4rem;
 }
-
-/* Crisper glass edge: light catch on the top rim */
+/* Tier assignment */
 .main .post-entry,
 .main .first-entry,
-.main .post-single,
+.main .pagination,
 .toc {
-  border-top-color: rgba(255, 255, 255, 0.75);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+}
+.main .post-single {
+  background: var(--glass-bg-content);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Entry cards: breathing room from the card edge */
+.main .post-entry,
+.main .first-entry {
+  padding: 1.3rem 1.6rem;
+}
+
+/* Breadcrumbs: lift out of the wash */
+.breadcrumbs {
+  color: var(--content);
+  opacity: 0.75;
 }
 
 /* Entry hover: lift + glow (the animation layer) */
