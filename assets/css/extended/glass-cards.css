@@ -47,13 +47,18 @@ body::before {
 /* Top header retired — nav & controls live in the sidebar */
 .header { display: none; }
 
-/* Bars: footer */
+/* Bars: footer — slim, centered, quiet */
 .footer {
-  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 8%, 92%)));
-  backdrop-filter: blur(22px) saturate(1.4);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1%));
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
   border-top: 1px solid var(--glass-border);
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  padding: 0.65rem 1rem;
 }
+.footer span { display: inline-block; opacity: 0.92; }
 
 /* Content cards */
 .main .post-entry,
@@ -257,11 +262,12 @@ html.card-dark .main .post-single { border-top-color: rgba(255, 255, 255, 0.22);
 .main {
   --mw: min(72rem, 90vw);
   width: var(--mw);
-  margin-inline: auto;
+  max-width: var(--mw); /* override PaperMod's own main-width cap — the fluid logic lives or dies here */
 }
 /* Sidebar open on wide screens: center within the remaining space */
 html.sb-open .main {
   --mw: min(72rem, calc(86vw - var(--sidebar-w) - 28px));
+  max-width: var(--mw);
   margin-left: calc(var(--sidebar-w) + 28px + (100vw - var(--sidebar-w) - 28px - var(--mw)) / 2);
   margin-right: auto;
 }
