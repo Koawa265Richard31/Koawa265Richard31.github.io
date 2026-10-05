@@ -1,0 +1,40 @@
+{{- /*
+consciousness-space — 意识空间可视化挂件（CDN 栈：3d-force-graph + three + tsparticles）
+
+用法：
+  {{< consciousness-space >}}
+  {{< consciousness-space height="560" seed="7" members="5" dust="60" caption="…" >}}
+
+参数：
+  height   高度（px，默认 560，钳制在 480–640）
+  seed     宇宙随机种子（默认 7；换种子 = 换一个意识空间）
+  members  每个密集域的意识点数（默认 5，2–9）
+  dust     氛围尘埃粒子数（默认 60，0–140；0 = 关闭氛围层）
+  caption  可选图注（20 字内）
+
+说明：CDN 依赖（three/3d-force-graph/tsparticles，UMD + 动态注入）由组件自身
+      按需加载并保序，不阻塞首屏；样式全部封装在 Shadow DOM 内，与 PaperMod 隔离。
+*/ -}}
+{{- $height := .Get "height" | default "560" -}}
+{{- $seed := .Get "seed" | default "7" -}}
+{{- $members := .Get "members" | default "5" -}}
+{{- $dust := .Get "dust" | default "60" -}}
+{{- $caption := .Get "caption" -}}
+{{- if not (.Page.Scratch.Get "cspace-loaded") -}}
+  {{- .Page.Scratch.Set "cspace-loaded" true -}}
+  <script src="{{ "js/consciousness-space.js" | relURL }}" defer></script>
+{{- end -}}
+<figure style="margin:1.6rem auto;max-width:1040px;padding:0 .25rem">
+  <consciousness-space
+    height="{{ $height }}"
+    seed="{{ $seed }}"
+    members="{{ $members }}"
+    dust="{{ $dust }}"
+    role="img"
+    aria-label="意识空间交互可视化：意识点自原点沿弧生长，微分歧成簇，簇间连通"
+    style="display:block;width:100%"></consciousness-space>
+  {{- with $caption -}}
+    <figcaption style="margin-top:.6rem;text-align:center;font-size:.86em;opacity:.75">{{ . }}</figcaption>
+  {{- end -}}
+</figure>
+<noscript><p style="text-align:center;font-size:.9em;opacity:.7">（此交互动画需要启用 JavaScript 才能显示）</p></noscript>

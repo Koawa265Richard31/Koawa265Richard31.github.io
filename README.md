@@ -64,7 +64,27 @@ git -c http.https://github.com.proxy=http://127.0.0.1:7897 push -u origin main  
 | 写新文章 | `content/posts/xxx.md` | front matter：`title/date/tags/draft` |
 | 侧栏宽度/内容列宽度 | `assets/css/extended/glass-cards.css` | `--sidebar-w` / `--mw` 那几行 |
 
-## 交互动画组件：意识流形（manifold-viz）
+## 交互动画组件：意识空间（consciousness-space，v2 · CDN 栈）
+
+CDN UMD 栈：3d-force-graph@1.73.6（**必须钉版本**，1.80.x UMD 有打包 bug
+`Zz.Timer is not a constructor`）+ three@0.150.1 + tsparticles@2.12.0。
+两阶段叙事：TubeGeometry 按弧长逐段生长 → 力导向网络（弧连线+流动粒子）接管；
+悬停意识点高亮其簇，点击高亮与主干共享段。
+
+```markdown
+{{</* consciousness-space */>}}                                  ← 默认 560px
+{{</* consciousness-space height="600" seed="11" members="6" dust="80" caption="图 2" */>}}
+```
+
+| 想改什么 | 文件 | 位置/字段 |
+|---|---|---|
+| 簇数量（2^LEVELS） | `static/js/consciousness-space.js` | 顶部 `LEVELS` / `BASE_LEN` |
+| 生长速度 | 同上 | `GROW_V`（弧长单位/秒） |
+| 簇配色 | 同上 | `CLUSTER_COLORS` |
+| 每簇意识点数 / 尘埃数 | shortcode 属性 | `members` / `dust` |
+| 调试句柄（验收用） | 页面元素 | `el.__csDiag`（growS/pick/forceGrown） |
+
+## 交互动画组件：意识流形（manifold-viz，v1 · 纯 Canvas）
 
 自包含 Vanilla Canvas 组件（零依赖、Shadow DOM 样式隔离、移动端自适应、离屏暂停）。
 在任意文章里一行调用：
