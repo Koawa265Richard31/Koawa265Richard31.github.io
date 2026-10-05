@@ -64,6 +64,28 @@ git -c http.https://github.com.proxy=http://127.0.0.1:7897 push -u origin main  
 | 写新文章 | `content/posts/xxx.md` | front matter：`title/date/tags/draft` |
 | 侧栏宽度/内容列宽度 | `assets/css/extended/glass-cards.css` | `--sidebar-w` / `--mw` 那几行 |
 
+## 交互动画组件：意识流形（manifold-viz）
+
+自包含 Vanilla Canvas 组件（零依赖、Shadow DOM 样式隔离、移动端自适应、离屏暂停）。
+在任意文章里一行调用：
+
+```markdown
+{{</* manifold-viz */>}}                                        ← 默认：高 480px、种子 7
+{{</* manifold-viz height="540" seed="11" */>}}                 ← 换高度 / 换一棵树
+{{</* manifold-viz height="420" seed="7" caption="图 2" */>}}   ← 带图注
+```
+
+| 想改什么 | 文件 | 位置/字段 |
+|---|---|---|
+| 调色板（蓝→靛→紫→琥珀） | `static/js/manifold-viz.js` | 顶部 `PALETTE` 数组 |
+| 分叉层数 / 生长速度 | 同上 | `DEPTH_MAX` / `GROW_V` |
+| 粒子数量 | 同上 | `N_FLOW` / `N_DUST`（合计 260 ≤ 1000 预算） |
+| 初始张角范围 | 同上 | `DTHETA`（恒 < 0.01 rad，微观分歧语义） |
+| 演示文章（草稿，未发布） | `content/posts/consciousness-manifold-demo.md` | `draft: true` |
+
+交互：拖动旋转（惯性）· 双击复位 · 悬停/轻点分支点显示 t₀ 与 Δθ；
+尊重系统"减少动态效果"；`hugo server -D` 本地预览演示文。
+
 ## Backlog（第一篇文章上线前不动）
 
 主题样式定制、关于页、评论、访问统计、自定义域名、Cloudflare 前置（大陆访问优化）。
