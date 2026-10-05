@@ -15,15 +15,24 @@
       <a href="https://github.com/Koawa265Richard31" rel="me">GitHub</a>
       <a href="/index.xml">RSS</a>
     </nav>
-    <div class="sidebar-controls">
-      <button id="glass-knob" class="glass-knob" type="button" aria-label="调节卡片透明度，每按一次调一档">
-        <span class="knob-needle"></span>
-      </button>
-      <div class="knob-label">透明度 <span id="knob-level">4/8</span></div>
-      <button id="glass-tint" class="glass-tint" type="button" aria-label="切换卡片色泽">卡片色泽</button>
-    </div>
   </aside>
   <button class="sidebar-handle" id="sidebar-handle" type="button" aria-label="展开侧栏">›</button>
+</div>
+
+<!-- Glass control knobs: pinned to the top-right corner of the content card.
+     Same element IDs as before so the JS below keeps working. -->
+<div class="glass-fabs" role="group" aria-label="毛玻璃外观控制">
+  <button id="glass-knob" class="glass-knob" type="button" title="毛玻璃透明度（每按一次调一档）" aria-label="毛玻璃透明度，每按一次调一档">
+    <span class="knob-needle"></span>
+    <span id="knob-level" class="visually-hidden">4/8</span>
+  </button>
+  <button id="glass-blur" class="glass-knob glass-knob--blur" type="button" title="毛玻璃模糊度（每按一次调一档）" aria-label="毛玻璃模糊度，每按一次调一档">
+    <span class="blur-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span id="blur-level" class="visually-hidden">4/6</span>
+  </button>
+  <button id="glass-tint" class="glass-knob glass-knob--tint" type="button" title="卡片色泽：暗玻璃 / 亮玻璃" aria-label="切换卡片色泽">
+    <span class="tint-dot" aria-hidden="true"></span>
+  </button>
 </div>
 <script>
 (function () {
@@ -75,6 +84,27 @@
   if (savedTint === 'light') applyTint(true);
   tint.addEventListener('click', function () {
     applyTint(!document.documentElement.classList.contains('card-light'));
+  });
+
+  /* Blur knob: 6 steps of --glass-blur (px), persisted. */
+  var BLURS = [0, 8, 14, 20, 26, 32];
+  var blurBtn = document.getElementById('glass-blur');
+  var blurLvl = document.getElementById('blur-level');
+  var blurIdx = 3; // 20px，与原默认一致
+  try {
+    var bi = parseInt(localStorage.getItem('glass-blur'), 10);
+    if (bi >= 0 && bi < BLURS.length) blurIdx = bi;
+  } catch (e) {}
+  function applyBlur(i) {
+    document.documentElement.style.setProperty('--glass-blur', BLURS[i] + 'px');
+    blurBtn.style.setProperty('--blur-rot', (i * 60) + 'deg');
+    blurLvl.textContent = (i + 1) + '/' + BLURS.length;
+    try { localStorage.setItem('glass-blur', String(i)); } catch (e) {}
+  }
+  applyBlur(blurIdx);
+  blurBtn.addEventListener('click', function () {
+    blurIdx = (blurIdx + 1) % BLURS.length;
+    applyBlur(blurIdx);
   });
 })();
 </script>

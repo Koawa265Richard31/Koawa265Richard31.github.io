@@ -10,7 +10,7 @@
 }
 html { transition: --glass-alpha 0.35s ease; }
 
-:root {
+html:root:root {
   --bg-image: url("/images/background.jpg");
   --card-radius: 16px;
   --glass-blur: 20px;
@@ -20,19 +20,31 @@ html { transition: --glass-alpha 0.35s ease; }
   --glass-edge: rgba(255, 255, 255, 0.22);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --glass-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  /* Full text-variable flip set (PaperMod reads --primary for body text) */
+  --primary: #e3e9f4;
   --content: #e3e9f4;
   --secondary: #a7b2c2;
+  --tertiary: rgba(150, 172, 212, 0.4);
+  --border: rgba(160, 190, 255, 0.16);
+  --code-bg: rgba(30, 36, 52, 0.85);
+  --cs-link-hover: #bcd4ff;
   --sidebar-w: 270px;
 }
-/* Light-glass variant (opt-in via 卡片色泽 button) */
-html.card-light {
+/* Light-glass variant (opt-in via tint knob): white cards, fully inverted text */
+html:root.card-light {
   --glass-tint: 255, 255, 255;
   --glass-border: rgba(30, 50, 90, 0.16);
   --glass-edge: rgba(255, 255, 255, 0.75);
   --glass-shadow: 0 10px 30px rgba(20, 40, 60, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   --glass-shadow-hover: 0 16px 40px rgba(20, 40, 60, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --primary: #2a3040;
   --content: #2a3040;
   --secondary: #5a6472;
+  --tertiary: #d8dce3;
+  --border: #e3e6ec;
+  --code-bg: #f0f2f6;
+  --cs-link-hover: #3f6fd8;
+  color-scheme: light;
 }
 
 /* Fixed background layer */
@@ -127,7 +139,7 @@ html.card-light .main .post-single { border-top-color: var(--glass-edge); }
 }
 .archive-entry:last-child { border-bottom: none; }
 .archive-entry-title { color: var(--content); font-size: 1.02rem; margin-bottom: 0.2rem; }
-.archive-entry-title:hover { color: #bcd4ff; }
+.archive-entry-title:hover { color: var(--cs-link-hover); }
 .archive-meta { color: var(--secondary); font-size: 0.86rem; }
 
 /* ---- Terms (标签云) + 404 + search results on glass ---- */
@@ -151,7 +163,7 @@ html.card-light .main .post-single { border-top-color: var(--glass-edge); }
 }
 .terms-tags a:hover {
   background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1% + 14%));
-  color: #bcd4ff;
+  color: var(--cs-link-hover);
   transform: translateY(-2px);
 }
 .terms-tags a .sup, .terms-tags a sup { color: var(--secondary); }
@@ -299,58 +311,95 @@ html.card-light #searchResults mark, #searchResults mark {
   transform: translateX(3px);
 }
 
-/* ---- Glass controls: transparency knob + tint switch ---- */
-.sidebar-controls {
-  margin-top: auto;
+/* ---- Glass control knobs: pinned to the top-right corner of the content card ---- */
+.glass-fabs {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 60;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  width: 100%;
-  padding-top: 0.8rem;
+  gap: 10px;
 }
 .glass-knob {
   position: relative;
-  width: 48px; height: 48px;
+  width: 42px; height: 42px;
   border-radius: 50%;
   border: 1px solid var(--glass-border);
-  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 15%, 95%)));
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 15%, 92%)));
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: var(--glass-shadow);
   cursor: pointer;
-  transition: background 0.35s ease, transform 0.15s ease;
+  transition: background 0.35s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  padding: 0;
 }
+.glass-knob:hover { box-shadow: var(--glass-shadow-hover); transform: translateY(-1px); }
 .glass-knob:active { transform: scale(0.92); }
 .glass-knob::before {
   content: "";
   position: absolute;
   left: 50%; top: 50%;
-  width: 8px; height: 8px;
-  margin: -4px 0 0 -4px;
+  width: 7px; height: 7px;
+  margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
   background: var(--secondary);
 }
 .knob-needle {
   position: absolute;
-  left: 50%; top: 7px;
-  width: 2px; height: 14px;
+  left: 50%; top: 6px;
+  width: 2px; height: 12px;
   margin-left: -1px;
   border-radius: 1px;
   background: var(--content);
   transform: rotate(var(--knob-rot, 135deg));
-  transform-origin: 50% 17px;
+  transform-origin: 50% 15px;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.knob-label { font-size: 0.78rem; color: var(--secondary); }
-.glass-tint {
-  padding: 0.45rem 1rem;
-  border-radius: 10px;
-  border: 1px solid var(--glass-border);
-  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1%));
-  color: var(--content);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.35s ease;
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
-.glass-tint:hover { background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 12%, 95%))); }
+/* Blur knob: three fading dots = blur metaphor; level shown by needle-free icon */
+.glass-knob--blur::before { display: none; }
+.glass-knob--blur .blur-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.glass-knob--blur .blur-icon i {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--content);
+  display: block;
+}
+.glass-knob--blur .blur-icon i:nth-child(1) { opacity: 0.25; }
+.glass-knob--blur .blur-icon i:nth-child(2) { opacity: 0.55; transform: scale(1.15); }
+.glass-knob--blur .blur-icon i:nth-child(3) { opacity: 1; }
+.glass-knob--blur:hover .blur-icon i:nth-child(1) { opacity: 0.55; }
+/* Tint knob: dot flips across the face so the current mode is readable at a glance */
+.glass-knob--tint .tint-dot {
+  position: absolute;
+  left: 9px; top: 50%;
+  width: 16px; height: 16px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, var(--content) 0 50%, transparent 50% 100%),
+    radial-gradient(circle at 50% 50%, var(--secondary) 0 100%);
+  border: 1px solid var(--glass-border);
+  transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+html.card-light .glass-knob--tint .tint-dot { left: 17px; }
+@media (max-width: 640px) {
+  .glass-fabs { top: 10px; right: 10px; gap: 8px; }
+  .glass-knob { width: 38px; height: 38px; }
+  .knob-needle { top: 5px; transform-origin: 50% 14px; height: 11px; }
+}
 
 /* ---- Content column: fluid width, viewport-proportional ---- */
 /* Aesthetic rules baked in: ~5-10% background breathing room each side,
