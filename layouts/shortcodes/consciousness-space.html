@@ -17,8 +17,8 @@ consciousness-space — 意识空间可视化挂件（CDN 栈：3d-force-graph +
 */ -}}
 {{- $height := .Get "height" | default "560" -}}
 {{- $seed := .Get "seed" | default "7" -}}
-{{- $members := .Get "members" | default "5" -}}
-{{- $dust := .Get "dust" | default "60" -}}
+{{- $members := .Get "members" | default "8" -}}
+{{- $dust := .Get "dust" | default "80" -}}
 {{- $caption := .Get "caption" -}}
 {{- if not (.Page.Scratch.Get "cspace-loaded") -}}
   {{- .Page.Scratch.Set "cspace-loaded" true -}}

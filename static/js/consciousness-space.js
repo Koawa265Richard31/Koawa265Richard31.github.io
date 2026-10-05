@@ -57,16 +57,23 @@
   /* ================= 参数 ================= */
   var TAU = Math.PI * 2;
   var SEG = 0.5;                     // 弧长采样步长
-  var LEVELS = 3;                    // 分叉层数 → 2^3 = 8 个密集域（簇）
-  var BASE_LEN = [20, 13.5, 9.5];    // 各层弧长
-  var GROW_V = 7.5;                  // 生长速度（弧长单位/秒）＝时间流速
+  var LEVELS = 5;                             // 分叉层数 → 2^(LEVELS-1) = 16 个密集域（簇）
+  var BASE_LEN = [20, 13.5, 9.5, 7, 5.5];     // 各层弧长
+  var GROW_V = 22;                   // 生长速度（弧长单位/秒）＝时间流速（快扫，即显）
+  var TAKEOVER_DELAY = 0.3;          // 长满到网络接管的间隔（秒）
   var DTHETA = [0.005, 0.0095];      // 分叉初始张角（rad，极小）
-  var PALETTE = [[176, 226, 255], [92, 164, 255], [138, 128, 255]];
-  var CLUSTER_COLORS = [
-    [182, 134, 255], [248, 178, 74], [210, 150, 255], [255, 205, 120],
-    [150, 160, 255], [250, 190, 110], [170, 200, 255], [240, 170, 90]
+  var N_FLOW = 170;                  // 沿弧流动粒子数
+  var N_DUST_DEFAULT = 80;           // 氛围尘埃默认数
+  var PALETTE = [                    // 深度配色：全透明蓝系（主干亮 → 深处稍暗）
+    [140, 205, 255], [90, 165, 250], [110, 180, 250], [130, 195, 255]
   ];
-  var CROSS_COLOR = [120, 140, 200]; // 跨桥（空间连通）
+  var CLUSTER_COLORS = [             // 簇（叶端密集域）：同蓝系，亮度微差
+    [130, 200, 255], [95, 170, 250], [160, 218, 255], [110, 185, 252],
+    [85, 155, 245], [145, 210, 255], [100, 175, 250], [120, 190, 252],
+    [150, 215, 255], [90, 160, 248], [135, 200, 254], [105, 180, 250],
+    [155, 212, 255], [95, 168, 250], [125, 195, 253], [115, 185, 251]
+  ];
+  var CROSS_COLOR = [90, 140, 220];  // 跨桥（空间连通，暗蓝）
   function rgb(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
 
   /* ================= 工具（确定性随机 + 3 维向量） ================= */
@@ -210,9 +217,10 @@
       var c = document.createElement('canvas'); c.width = c.height = 64;
       var x = c.getContext('2d');
       var g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
-      g.addColorStop(0, 'rgba(255,255,255,0.95)');
-      g.addColorStop(0.2, 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.7)');
-      g.addColorStop(0.5, 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.16)');
+      // 锐利内核：点与点可分辨（密集域读作"多个点"而非一团光）
+      g.addColorStop(0, 'rgba(255,255,255,0.98)');
+      g.addColorStop(0.14, 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.8)');
+      g.addColorStop(0.34, 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0.22)');
       g.addColorStop(1, 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',0)');
       x.fillStyle = g; x.fillRect(0, 0, 64, 64);
       cache[key] = new T3.CanvasTexture(c);
@@ -223,8 +231,8 @@
   /* ================= 引擎 ================= */
   function createEngine(host) {
     var seed = parseInt(host.getAttribute('seed'), 10) || 7;
-    var membersPer = Math.min(9, Math.max(2, parseInt(host.getAttribute('members'), 10) || 5));
-    var dustN = Math.min(140, Math.max(0, parseInt(host.getAttribute('dust'), 10) || 60));
+    var membersPer = Math.min(12, Math.max(3, parseInt(host.getAttribute('members'), 10) || 8));
+    var dustN = Math.min(160, Math.max(0, parseInt(host.getAttribute('dust'), 10) || N_DUST_DEFAULT));
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     var shadow = host.shadowRoot || host.attachShadow({ mode: 'open' });
@@ -286,9 +294,9 @@
         for (var i = 0; i < b.pts.length; i += 2) vs.push(new T3.Vector3(b.pts[i][0], b.pts[i][1], b.pts[i][2]));
         var curve = new T3.CatmullRomCurve3(vs);
         var tub = Math.max(24, Math.ceil(b.len * 5));
-        var geo = new T3.TubeGeometry(curve, tub, 0.13 - b.depth * 0.022, 6, false);
+        var geo = new T3.TubeGeometry(curve, tub, 0.11 - b.depth * 0.016, 6, false);
         var mat = new T3.MeshBasicMaterial({
-          color: new T3.Color(rgb(b.color)), transparent: true, opacity: 0.85,
+          color: new T3.Color(rgb(b.color)), transparent: true, opacity: 0.7,
           blending: T3.AdditiveBlending, depthWrite: false
         });
         var mesh = new T3.Mesh(geo, mat);
@@ -301,14 +309,14 @@
       var tipSprites = [], flowSprites = [];
       tubes.forEach(function (tb) {
         var sp = new T3.Sprite(new T3.SpriteMaterial({ map: glowTex(tb.b.color), transparent: true, opacity: 0.9, blending: T3.AdditiveBlending, depthWrite: false }));
-        sp.scale.set(1.6, 1.6, 1); sp.visible = false;
+        sp.scale.set(1.3, 1.3, 1); sp.visible = false;
         carrierGroup.add(sp); tipSprites.push({ tb: tb, sp: sp });
       });
       var rngF = mulberry32((((seed >>> 0) || 7) ^ 0xA5A5) >>> 0);
-      for (var fi = 0; fi < 110; fi++) {
+      for (var fi = 0; fi < N_FLOW; fi++) {
         var tb0 = tubes[(rngF() * tubes.length) | 0];
-        var fs = new T3.Sprite(new T3.SpriteMaterial({ map: glowTex(tb0.b.color), transparent: true, opacity: 0.5 + rngF() * 0.35, blending: T3.AdditiveBlending, depthWrite: false }));
-        fs.scale.set(0.9, 0.9, 1); fs.visible = false;
+        var fs = new T3.Sprite(new T3.SpriteMaterial({ map: glowTex(tb0.b.color), transparent: true, opacity: 0.42 + rngF() * 0.3, blending: T3.AdditiveBlending, depthWrite: false }));
+        fs.scale.set(0.8, 0.8, 1); fs.visible = false;
         carrierGroup.add(fs);
         flowSprites.push({ tb: tb0, sp: fs, u: rngF(), v: (2.2 + rngF() * 2.2) / tb0.b.len });
       }
@@ -332,7 +340,7 @@
             id: m.id, role: 'mind', cluster: m.cluster, color: m.color, s0: m.s0, t0: m.s0,
             x: m.x, y: m.y, z: m.z, parentId: cl0.centroid.id
           });
-          links.push({ source: cl0.centroid.id, target: m.id, kind: 'cloud', color: rgb(m.color), curv: 0.38, dist: 2.0, part: 0, w: 0.22 });
+          links.push({ source: cl0.centroid.id, target: m.id, kind: 'cloud', color: rgb(m.color), curv: 0.38, dist: 1.7, part: 0, w: 0.22 });
         });
       });
       nodes.forEach(function (n) {
@@ -362,10 +370,10 @@
       function nodeObj(n) {
         if (n.role === 'carrier') return carrierGroup;
         var col = n.color || PALETTE[0], sz, op;
-        if (n.role === 'mind') { sz = 1.35 + rngN() * 0.5; op = 0.85; }
-        else if (n.role === 'centroid') { sz = 1.05; op = 0.7; }
-        else if (n.role === 'origin') { sz = 1.35; op = 0.9; }
-        else { sz = 0.65; op = 0.55; }
+        if (n.role === 'mind') { sz = 1.05 + rngN() * 0.4; op = 0.78; }
+        else if (n.role === 'centroid') { sz = 0.95; op = 0.6; }
+        else if (n.role === 'origin') { sz = 1.2; op = 0.85; }
+        else { sz = 0.55; op = 0.5; }
         var mat = new T3.SpriteMaterial({
           map: glowTex(n.role === 'origin' ? [200, 230, 255] : col),
           transparent: true, opacity: op, blending: T3.AdditiveBlending, depthWrite: false
@@ -397,7 +405,7 @@
         .linkWidth(function (l) { return state.hiLinks && state.hiLinks.indexOf(l.pid) >= 0 ? 1.4 : l.w; })
         .linkOpacity(0.75)
         .linkDirectionalParticles(function (l) { return state.flowOn ? l.part : 0; })
-        .linkDirectionalParticleWidth(function (l) { return state.hiLinks && state.hiLinks.indexOf(l.pid) >= 0 ? 2.2 : 1.25; })
+        .linkDirectionalParticleWidth(function (l) { return state.hiLinks && state.hiLinks.indexOf(l.pid) >= 0 ? 2.2 : 1.15; })
         .linkDirectionalParticleSpeed(0.0075)
         .linkDirectionalParticleResolution(4)
         .linkDirectionalParticleColor(function (l) { return l.color; })
@@ -412,7 +420,7 @@
         // 验收调试：强制跳到生长完成 + 接管（供自动化测试在 rAF 受限环境下推进状态）
         forceGrown: function () { growS = uni.maxLen; doTakeover(); }
       };
-      graph.d3Force('charge').strength(-7).distanceMax(90);
+      graph.d3Force('charge').strength(-5).distanceMax(90);
       var lf = graph.d3Force('link');
       lf.distance(function (l) { return l.dist; }).strength(function (l) { return l.kind === 'cloud' ? 0.32 : 0.02; });
       if (!reduced) {
@@ -508,7 +516,7 @@
             detectRetina: true,
             particles: {
               number: { value: dustN, density: { enable: true, area: 900 } },
-              color: { value: ['#8ea6e8', '#a78bfa', '#7c8fd0'] },
+              color: { value: ['#7fb4ff', '#5a9bf0', '#a8ccff'] },
               size: { value: { min: 0.6, max: 2 } },
               opacity: { value: { min: 0.05, max: 0.22 } },
               move: { enable: true, speed: 0.22, direction: 'none', random: true, outModes: { default: 'bounce' } },
@@ -530,7 +538,7 @@
           if (!reduced && !takeover) {
             growS = Math.min(GROW_V * T, uni.maxLen);
             if (growS >= uni.maxLen && tFull < 0) tFull = T;
-            if (tFull >= 0 && T > tFull + 0.7) doTakeover();
+            if (tFull >= 0 && T > tFull + TAKEOVER_DELAY) doTakeover();
           }
           for (var i = 0; i < tubes.length; i++) {
             var tb = tubes[i], sl = Math.min(Math.max(growS - tb.b.s0, 0), tb.b.len);
@@ -550,7 +558,7 @@
             var r0 = registry[key], n0 = r0.node;
             var vis = n0.s0 == null || growS >= n0.s0 - 0.02;
             if (n0.role === 'mind') {
-              var born = vis ? Math.min(1, Math.max(0.001, (growS - n0.s0) / 1.2)) : 0;
+              var born = vis ? Math.min(1, Math.max(0.001, (growS - n0.s0) / 0.7)) : 0;
               var pop = 1 - Math.pow(1 - born, 3);
               var hiT = (!state.hoverCluster || state.hoverCluster === n0.cluster) ? 1 : 0.22;
               r0.hi += (hiT - r0.hi) * Math.min(1, dt * 9);
@@ -578,7 +586,7 @@
           /* 接管后管线整体淡出 */
           if (takeover) {
             var fade = Math.max(0, 1 - (T - tTake) / 1.1);
-            for (var i2 = 0; i2 < tubes.length; i2++) tubes[i2].mat.opacity = 0.85 * fade;
+            for (var i2 = 0; i2 < tubes.length; i2++) tubes[i2].mat.opacity = 0.7 * fade;
             if (fade <= 0) carrierGroup.visible = false;
           }
           placeTip();
