@@ -64,25 +64,27 @@ git -c http.https://github.com.proxy=http://127.0.0.1:7897 push -u origin main  
 | 写新文章 | `content/posts/xxx.md` | front matter：`title/date/tags/draft` |
 | 侧栏宽度/内容列宽度 | `assets/css/extended/glass-cards.css` | `--sidebar-w` / `--mw` 那几行 |
 
-## 交互动画组件：意识空间（consciousness-space，v2 · CDN 栈）
+## 交互动画组件：意识空间（consciousness-space，v2 · 遍布空间点簇）
 
-CDN UMD 栈：3d-force-graph@1.73.6（**必须钉版本**，1.80.x UMD 有打包 bug
-`Zz.Timer is not a constructor`）+ three@0.150.1 + tsparticles@2.12.0。
-两阶段叙事：TubeGeometry 按弧长逐段生长 → 力导向网络（弧连线+流动粒子）接管；
-悬停意识点高亮其簇，点击高亮与主干共享段。
+CDN UMD 栈：**three@0.150.1 + tsparticles@2.12.0**（相机控制组件自写，不用 3d-force-graph——
+其 1.80.x UMD 有打包 bug `Zz.Timer is not a constructor`，钉 1.73.6 亦不如直接纯 three 简单）。
+形态：透明蓝点簇遍布空间（宇宙网）+ IFG 式绽开入场（按距离波次从原点铺满）+
+意识点跨簇互访（出访点亮所经光丝）。
 
 ```markdown
 {{</* consciousness-space */>}}                                  ← 默认 560px
-{{</* consciousness-space height="600" seed="11" members="6" dust="80" caption="图 2" */>}}
+{{</* consciousness-space height="600" seed="11" members="8" dust="100" caption="图 2" */>}}
 ```
 
 | 想改什么 | 文件 | 位置/字段 |
 |---|---|---|
-| 簇数量（2^LEVELS） | `static/js/consciousness-space.js` | 顶部 `LEVELS` / `BASE_LEN` |
-| 生长速度 | 同上 | `GROW_V`（弧长单位/秒） |
-| 簇配色 | 同上 | `CLUSTER_COLORS` |
-| 每簇意识点数 / 尘埃数 | shortcode 属性 | `members` / `dust` |
-| 调试句柄（验收用） | 页面元素 | `el.__csDiag`（growS/pick/forceGrown） |
+| 点簇数 / 空间半径 / 最小间距 | `static/js/consciousness-space.js` | `N_CLUSTERS` / `FIELD_R` / `MIN_SEP` |
+| 宇宙网密度 | 同上 | `WEB_KNN`（每簇近邻连接数） |
+| 绽开节奏 | 同上 | `BLOOM_WAVE` / `BLOOM_DUR` |
+| 互访强度 | 同上 | `TRAVEL_MAX` / 出访概率 `0.028` |
+| 蓝系色阶 | 同上 | `BLUE` 数组 |
+| 每簇点数 / 尘埃数 | shortcode 属性 | `members` / `dust` |
+| 调试句柄（验收用） | 页面元素 | `el.__csDiag`（T/bloomDone/travelers/errors） |
 
 ## 交互动画组件：意识流形（manifold-viz，v1 · 纯 Canvas）
 
