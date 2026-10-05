@@ -164,16 +164,6 @@
       return cache[key];
     };
   }
-  function makeLabelTex(T3, txt) {
-    var c = document.createElement('canvas'); c.width = c.height = 64;
-    var x = c.getContext('2d');
-    x.font = '600 40px ui-monospace, Consolas, monospace';
-    x.fillStyle = 'rgba(205,228,255,0.95)';
-    x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.fillText(txt, 32, 34);
-    return new T3.CanvasTexture(c);
-  }
-
   /* ================= 引擎 ================= */
   function createEngine(host) {
     var seed = parseInt(host.getAttribute('seed'), 10) || 7;
@@ -237,19 +227,11 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       fgDiv.appendChild(renderer.domElement);
       var scene = new T3.Scene();
-      var camera = new T3.PerspectiveCamera(50, 1, 0.1, 600);
+      var camera = new T3.PerspectiveCamera(55, 1, 0.1, 600);
       var R = uni.R;
-      var yaw = 0.7, pitch = -0.3, dist = R * 3.1;
+      // 相机推近场内：点云铺满整个画布，边缘不留空（用户要求"遍布整个画布"）
+      var yaw = 0.7, pitch = -0.3, dist = R * 1.7;
       var yawT = yaw, pitchT = pitch, distT = dist, autoRotate = !reduced;
-
-      /* ---------- 原点核心 ---------- */
-      var coreHalo = new T3.Sprite(new T3.SpriteMaterial({ map: glowTex(CORE_COLOR), transparent: true, opacity: 0.5, blending: T3.AdditiveBlending, depthWrite: false }));
-      coreHalo.scale.set(6.5, 6.5, 1);
-      var coreDot = new T3.Sprite(new T3.SpriteMaterial({ map: glowTex([240, 250, 255]), transparent: true, opacity: 0.95, blending: T3.AdditiveBlending, depthWrite: false }));
-      coreDot.scale.set(2.4, 2.4, 1);
-      var coreLabel = new T3.Sprite(new T3.SpriteMaterial({ map: makeLabelTex(T3, 'O'), transparent: true, opacity: 0.7, depthWrite: false }));
-      coreLabel.scale.set(2.2, 2.2, 1); coreLabel.position.set(3.0, 1.6, 0);
-      scene.add(coreHalo); scene.add(coreDot); scene.add(coreLabel);
 
       /* ---------- 宇宙网光丝（极细，几乎隐形）---------- */
       uni.webLines.forEach(function (wl) {
@@ -335,14 +317,15 @@
       canvasEl.addEventListener('wheel', function (e) {
         e.preventDefault();
         distT *= (1 + (e.deltaY > 0 ? 0.08 : -0.08));
-        if (distT < R * 1.5) distT = R * 1.5;
-        if (distT > R * 5.5) distT = R * 5.5;
+        if (distT < R * 1.35) distT = R * 1.35;
+        if (distT > R * 4.5) distT = R * 4.5;
       }, { passive: false });
 
       /* ---------- 屏幕空间拾取 ---------- */
       var v3 = new T3.Vector3();
       function project(p) {
         v3.set(p[0], p[1], p[2]).project(camera);
+        if (v3.z > 1 || v3.z < 0) return null; // 相机背后的点不参与拾取
         return { x: (v3.x * 0.5 + 0.5) * (host.clientWidth || 1), y: (-v3.y * 0.5 + 0.5) * (host.clientHeight || 1) };
       }
       function pick() {
@@ -351,6 +334,7 @@
           var r0 = registry[id];
           if (r0.born <= 0.05) continue;
           var sc = project(r0.pos);
+          if (!sc) continue;
           var dx = sc.x - pointer.x, dy = sc.y - pointer.y, d2 = dx * dx + dy * dy;
           if (d2 < bd) { bd = d2; best = r0; }
         }
@@ -550,12 +534,6 @@
             var target = hi ? 0.5 : wl.baseOpacity;
             wl.mat.opacity += (target - wl.mat.opacity) * Math.min(1, dt * 7);
           });
-
-          /* 核心脉动（绽开期间更亮） */
-          var bloomGlow = Math.max(0, 1 - T / (uni.totalBloom + 1)) * 0.3;
-          var pulse = 0.5 + 0.5 * Math.sin(T * 1.6);
-          coreHalo.scale.set(6.2 + 1.4 * pulse + 2.5 * bloomGlow, 6.2 + 1.4 * pulse + 2.5 * bloomGlow, 1);
-          coreHalo.material.opacity = 0.4 + 0.18 * pulse + bloomGlow;
 
           renderer.render(scene, camera);
           placeTip();
