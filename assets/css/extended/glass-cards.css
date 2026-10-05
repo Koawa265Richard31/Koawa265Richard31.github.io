@@ -1,13 +1,12 @@
-/* Glass cards over a site-wide background image (v7: drawer handle, 8-step knob
-   with animated alpha, roomier content cards). Requires a modern browser (2023+).
+/* Glass cards over a site-wide background image.
+   DEFAULT = dark glass (deep blue-black, light text) — readable over the bright
+   artwork and lets the background glow through. `html.card-light` flips to the
+   white-glass/dark-text variant via the sidebar 卡片色泽 button.
    Swap the background via --bg-image. */
-
-/* Animate the knob: registered custom property transitions its number smoothly,
-   every rgba(calc()) surface follows. */
 @property --glass-alpha {
   syntax: '<number>';
   inherits: true;
-  initial-value: 55;
+  initial-value: 45;
 }
 html { transition: --glass-alpha 0.35s ease; }
 
@@ -15,21 +14,25 @@ html { transition: --glass-alpha 0.35s ease; }
   --bg-image: url("/images/background.jpg");
   --card-radius: 16px;
   --glass-blur: 20px;
-  --glass-tint: 255, 255, 255;
-  --glass-alpha: 55;
-  --glass-border: rgba(255, 255, 255, 0.6);
-  --glass-shadow: 0 10px 30px rgba(20, 40, 60, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  --glass-shadow-hover: 0 16px 40px rgba(20, 40, 60, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  --sidebar-w: 270px;
-}
-/* Dark card tint (independent of PaperMod page theme) */
-html.card-dark {
-  --glass-tint: 16, 18, 27;
-  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-tint: 13, 16, 24;
+  --glass-alpha: 45;
+  --glass-border: rgba(160, 190, 255, 0.16);
+  --glass-edge: rgba(255, 255, 255, 0.22);
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --glass-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --content: #dbe0e7;
-  --secondary: #9aa5b1;
+  --content: #e3e9f4;
+  --secondary: #a7b2c2;
+  --sidebar-w: 270px;
+}
+/* Light-glass variant (opt-in via 卡片色泽 button) */
+html.card-light {
+  --glass-tint: 255, 255, 255;
+  --glass-border: rgba(30, 50, 90, 0.16);
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-shadow: 0 10px 30px rgba(20, 40, 60, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  --glass-shadow-hover: 0 16px 40px rgba(20, 40, 60, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  --content: #2a3040;
+  --secondary: #5a6472;
 }
 
 /* Fixed background layer */
@@ -72,7 +75,7 @@ body::before {
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
   box-shadow: var(--glass-shadow);
   margin-bottom: 1.4rem;
-  border-top-color: rgba(255, 255, 255, 0.75);
+  border-top-color: var(--glass-edge);
 }
 .main .post-single {
   background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 18%, 96%)));
@@ -82,13 +85,105 @@ body::before {
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
   box-shadow: var(--glass-shadow);
   margin-bottom: 1.4rem;
-  border-top-color: rgba(255, 255, 255, 0.75);
+  border-top-color: var(--glass-edge);
 }
-html.card-dark .main .post-entry,
-html.card-dark .main .first-entry,
-html.card-dark .main .pagination,
-html.card-dark .toc,
-html.card-dark .main .post-single { border-top-color: rgba(255, 255, 255, 0.22); }
+html.card-light .main .post-entry,
+html.card-light .main .first-entry,
+html.card-light .main .pagination,
+html.card-light .toc,
+html.card-light .main .post-single { border-top-color: var(--glass-edge); }
+
+/* Page headers (Posts / 归档 / 标签 / 搜索 big titles): own glass bar so bare
+   headings stay readable over the bright artwork */
+.main .page-header {
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1%));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow: var(--glass-shadow);
+  margin: 0 0 1.4rem;
+  padding: clamp(1rem, 2vw, 1.5rem) clamp(1.25rem, 3vw, 2.1rem);
+}
+
+/* ---- Archives: one glass card per year, readable rows ---- */
+.main .archive-year {
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 6%, 92%)));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 1.4rem;
+  padding: clamp(1.1rem, 2vw, 1.6rem) clamp(1.25rem, 3vw, 2.1rem);
+}
+.archive-year-header { margin-top: 0; }
+.archive-year .archive-year-header,
+.archive-month-header { color: var(--content); }
+.archive-count { color: var(--secondary); font-size: 0.8em; }
+.archive-entry {
+  border-bottom: 1px solid var(--glass-border);
+  padding: 0.55rem 0;
+}
+.archive-entry:last-child { border-bottom: none; }
+.archive-entry-title { color: var(--content); font-size: 1.02rem; margin-bottom: 0.2rem; }
+.archive-entry-title:hover { color: #bcd4ff; }
+.archive-meta { color: var(--secondary); font-size: 0.86rem; }
+
+/* ---- Terms (标签云) + 404 + search results on glass ---- */
+.terms-tags {
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 6%, 92%)));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow: var(--glass-shadow);
+  padding: clamp(1.1rem, 2vw, 1.6rem);
+}
+.terms-tags li { margin: 0.3rem 0.45rem 0.3rem 0; }
+.terms-tags a {
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1% + 4%));
+  border: 1px solid var(--glass-border);
+  color: var(--content);
+  border-radius: 12px;
+  padding: 0.45rem 0.95rem;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+.terms-tags a:hover {
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1% + 14%));
+  color: #bcd4ff;
+  transform: translateY(-2px);
+}
+.terms-tags a .sup, .terms-tags a sup { color: var(--secondary); }
+.main .not-found {
+  background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 6%, 92%)));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow: var(--glass-shadow);
+  color: var(--content);
+  text-shadow: none;
+}
+#searchInput {
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1% + 6%));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--content);
+}
+#searchInput:focus { border-color: rgba(140, 175, 255, 0.55); box-shadow: 0 0 0 3px rgba(120, 160, 255, 0.12); }
+#searchResults .entry {
+  background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1% + 6%));
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+}
+#searchResults .entry:hover { background: rgba(var(--glass-tint), calc(var(--glass-alpha) * 1% + 16%)); }
+#searchResults .entry h3, #searchResults .entry h3 a { color: var(--content); }
+#searchResults .entry p, #searchResults .entry .entry-hint { color: var(--secondary); }
+html.card-light #searchResults mark, #searchResults mark {
+  background: rgba(120, 165, 255, 0.35);
+  color: inherit;
+}
 
 /* Roomy, viewport-adaptive card padding (was cramped) */
 .main .post-single {
@@ -110,12 +205,13 @@ html.card-dark .main .post-single { border-top-color: rgba(255, 255, 255, 0.22);
   background: rgba(var(--glass-tint), calc(min(var(--glass-alpha) * 1% + 10%, 95%)));
 }
 
-/* Page load fade-in */
+/* Page load rise-in (no opacity in keyframes: a frozen/paused animation must
+   never leave the page invisible — visibility never depends on the animation) */
 @keyframes glassPageIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
+  from { transform: translateY(10px); }
+  to { transform: none; }
 }
-.main { animation: glassPageIn 0.4s ease both; }
+.main { animation: glassPageIn 0.4s ease backwards; }
 
 /* ---- Sidebar drawer: wrapper slides, panel scrolls, handle rides the edge ---- */
 .sidebar-wrap {

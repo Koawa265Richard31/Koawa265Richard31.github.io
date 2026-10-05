@@ -64,17 +64,17 @@
     applyLevel(levelIdx);
   });
 
-  /* Card tint switch: white glass <-> dark glass (cards only, not the page theme). */
+  /* Card tint switch: default = dark glass; button flips to white glass (card-light). */
   var tint = document.getElementById('glass-tint');
-  function applyTint(dark) {
-    document.documentElement.classList.toggle('card-dark', dark);
-    try { localStorage.setItem('glass-tint', dark ? 'dark' : 'light'); } catch (e) {}
+  function applyTint(light) {
+    document.documentElement.classList.toggle('card-light', light);
+    try { localStorage.setItem('glass-tint', light ? 'light' : 'dark'); } catch (e) {}
   }
   var savedTint = null;
   try { savedTint = localStorage.getItem('glass-tint'); } catch (e) {}
-  if (savedTint === 'dark') applyTint(true);
+  if (savedTint === 'light') applyTint(true);
   tint.addEventListener('click', function () {
-    applyTint(!document.documentElement.classList.contains('card-dark'));
+    applyTint(!document.documentElement.classList.contains('card-light'));
   });
 })();
 </script>
