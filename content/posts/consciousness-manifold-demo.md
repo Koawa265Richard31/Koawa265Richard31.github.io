@@ -1,7 +1,7 @@
 ---
 title: "意识流形：弧长分支模型（组件演示）"
 date: 2026-10-05T09:00:00+08:00
-draft: true
+draft: false
 description: "manifold-viz 交互组件演示：高维意识流形与弧长分支模型的视觉化"
 ---
 
