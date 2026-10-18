@@ -8,6 +8,10 @@ title: "关于"
 
 - GitHub：[@Koawa265Richard31](https://github.com/Koawa265Richard31)
 
+## 健康状态
+
+{{< health-card >}}
+
 ## 素材
 
 - 背景插画：偶像大师同人图（画师信息待确认，确认后在此补署名；如你是画师本人请通过 GitHub 联系）。版权归原作者；本站仅作个人站点装饰用途，本地原样存档，未作修改。
