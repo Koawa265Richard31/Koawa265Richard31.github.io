@@ -20,10 +20,9 @@ consciousness-space — 意识空间可视化挂件（CDN 栈：3d-force-graph +
 {{- $members := .Get "members" | default "8" -}}
 {{- $dust := .Get "dust" | default "80" -}}
 {{- $caption := .Get "caption" -}}
-{{- if not (.Page.Scratch.Get "cspace-loaded") -}}
-  {{- .Page.Scratch.Set "cspace-loaded" true -}}
-  <script src="{{ "js/consciousness-space.js" | relURL }}" defer></script>
-{{- end -}}
+{{- /* v 参数穿透 CF 边缘缓存，更新 JS 后递增；脚本始终输出（IIFE 自带重复执行守卫，
+      不要用 Scratch 门控——hugo server 重建间 Scratch 持久化会让 script 消失） */ -}}
+<script src="{{ "js/consciousness-space.js" | relURL }}?v=3" defer></script>
 <figure style="margin:1.6rem auto;max-width:1040px;padding:0 .25rem">
   <consciousness-space
     height="{{ $height }}"

@@ -191,8 +191,8 @@
       var hrStale = hrAge != null && hrAge > 120;
       var cells =
         cell('heart', '心率', d.hr && d.hr.v != null ? d.hr.v : dim(), d.hr && d.hr.v != null ? '<small>bpm</small>' : '', d.hr && d.hr.at ? '<div class="hc-k">' + fmtTime(d.hr.at) + (hrStale ? ' · 采样较旧' : '') + '</div>' : '') +
-        cell('droplet', '血氧', d.spo2 && d.spo2.v != null ? d.spo2.v : dim(), d.spo2 && d.spo2.v != null ? '<small>%</small>' : '') +
-        cell('gauge', '压力', d.stress && d.stress.v != null ? d.stress.v : dim(), d.stress && d.stress.v != null ? '<small>/100</small>' : '') +
+        cell('droplet', '血氧', d.spo2 && d.spo2.v != null ? d.spo2.v : dim(), d.spo2 && d.spo2.v != null ? '<small>%</small>' : '', d.spo2 && d.spo2.at ? '<div class="hc-k">' + fmtTime(d.spo2.at) + ((ageMin(d.spo2.at) || 0) > 120 ? ' · 采样较旧' : '') + '</div>' : '') +
+        cell('gauge', '压力', d.stress && d.stress.v != null ? d.stress.v : dim(), d.stress && d.stress.v != null ? '<small>/100</small>' : '', d.stress && d.stress.at ? '<div class="hc-k">' + fmtTime(d.stress.at) + ((ageMin(d.stress.at) || 0) > 120 ? ' · 采样较旧' : '') + '</div>' : '') +
         cell('steps', '今日步数', today.steps != null ? today.steps : (d.steps_window != null ? d.steps_window + '<small>（6h）</small>' : dim())) +
         cell('flame', '今日卡路里', today.calories != null ? today.calories : dim(), today.calories != null ? '<small>kcal</small>' : '') +
         cell('heart', '静息心率', today.hr_resting != null ? today.hr_resting : dim(), today.hr_resting != null ? '<small>bpm</small>' : '') +

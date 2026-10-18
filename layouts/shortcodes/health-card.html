@@ -4,12 +4,9 @@ health-card — 健康状态折叠卡（小米手环 11 · astrbot_health GET �
 用法：{{< health-card >}}（放在关于页即可；默认折叠，点击展开才拉数据，展开期间每 5 分钟刷新）
 
 说明：只用 GET 接口（/health/now、/health/sleep_state、/health/status、/health/sleep）；
-脚本经 .Page.Scratch 保证同页只注入一次；样式在 Shadow DOM 内，与主题隔离。
-数据源自签名证书：浏览器 fetch 失败时卡片会给出「先手动接受一次证书」的引导链接。
+脚本始终输出（IIFE 内 customElements.get 守卫防重复执行；不要用 Scratch 门控——
+hugo server 重建间 Scratch 会持久化，导致 script 消失）；
+v 参数用于穿透 Cloudflare 边缘缓存，更新 JS 后请递增。
 */ -}}
-{{- if not (.Page.Scratch.Get "hcard-loaded") -}}
-  {{- .Page.Scratch.Set "hcard-loaded" true -}}
-  {{- /* v 参数用于穿透 Cloudflare 边缘缓存；更新 JS 后请递增 */ -}}
-  <script src="{{ "js/health-card.js" | relURL }}?v=20261018b" defer></script>
-{{- end -}}
+<script src="{{ "js/health-card.js" | relURL }}?v=20261018c" defer></script>
 <health-card style="display:block;margin:1.4rem 0" role="group" aria-label="健康状态卡片（点击展开）"></health-card>
