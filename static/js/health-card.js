@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * 数据源：astrbot_health 插件 GET 接口（自签名 TLS，CORS 全开）。
  * 行为（按需求）：默认折叠藏在关于页；点击栏目头才展开；首次展开才拉数据；
- * 展开期间每 5 分钟自动刷新，收起即停。只用 GET，绝不触碰 POST /health/upload。
+ * 展开期间每 1 分钟自动刷新，收起即停。只用 GET，绝不触碰 POST /health/upload。
  *
  * 容错（规格要求）：stress/standing/sleep 可能为 null；sleep 可能返回 _error；
  * hr/spo2/battery 可能缺采样；数据延迟 >2h 提示「延迟」，>6h 提示「已断」；
@@ -15,7 +15,8 @@
   if (window.customElements.get('health-card')) return;
 
   var BASE = 'https://117.72.203.70:63000';
-  var REFRESH_MS = 5 * 60 * 1000;   // 每 5 分钟查询一次
+  var REFRESH_MS = 60 * 1000;       // 每 1 分钟查询一次（展开期间）
+  var REFRESH_ON_VIS_MIN_AGE = 30 * 1000; // 切回标签页时，数据已旧 30s 即补拉
   var GET_PATHS = ['/health/now', '/health/sleep_state', '/health/status', '/health/sleep', '/health/trend?days=7'];
 
   function esc(s) {
@@ -114,7 +115,7 @@
     var head = shadow.querySelector('.hc-head');
     var body = shadow.querySelector('.hc-body');
     var dot = shadow.querySelector('.hc-dot');
-    var open = false, loaded = false, timer = 0, alive = true, chartRef = null;
+    var open = false, loaded = false, timer = 0, alive = true, chartRef = null, lastLoad = 0;
 
     function setOpen(v) {
       if (!alive || v === open) return;
@@ -124,12 +125,18 @@
       if (v) {
         if (!loaded) load();
         else load(); // 展开时立即刷新一次
-        timer = setInterval(load, REFRESH_MS);   // 每 5 分钟查询一次
+        timer = setInterval(load, REFRESH_MS);   // 每 1 分钟查询一次
       } else if (timer) {
         clearInterval(timer); timer = 0;         // 收起即停
       }
     }
     head.addEventListener('click', function () { setOpen(!open); });
+
+    /* 切回标签页时，展开且数据已旧（>30s）则立即补拉 */
+    function onVis() {
+      if (!document.hidden && open && alive && Date.now() - lastLoad > REFRESH_ON_VIS_MIN_AGE) load();
+    }
+    document.addEventListener('visibilitychange', onVis);
 
     function get(path) {
       return fetch(BASE + path, { cache: 'no-store' }).then(function (r) {
@@ -144,7 +151,8 @@
 
     function load() {
       if (!alive) return;
-      body.innerHTML = '<div class="hc-skel">加载中…</div>';
+      lastLoad = Date.now();
+      if (!loaded) body.innerHTML = '<div class="hc-skel">加载中…</div>'; // 后续刷新静默更新，不闪骨架
       Promise.allSettled(GET_PATHS.map(function (p) { return get(p); })).then(function (rs) {
         if (!alive) return;
         var now = rs[0].status === 'fulfilled' ? rs[0].value : null;
@@ -303,13 +311,14 @@
       return '<div class="hc-cell"><div class="hc-k">' + ic(icon) + '<span>' + k + '</span></div><div class="hc-v">' + v + (unit || '') + '</div>' + (extra || '') + '</div>';
     }
     function footHtml() {
-      return '<div class="hc-foot">每 5 分钟自动刷新（展开期间）· <a href="' + BASE + '/health/now" target="_blank" rel="noopener noopener">数据源</a></div>';
+      return '<div class="hc-foot">每 1 分钟自动刷新（展开期间）· <a href="' + BASE + '/health/now" target="_blank" rel="noopener noopener">数据源</a></div>';
     }
 
     return {
       destroy: function () {
         alive = false;
         if (timer) clearInterval(timer);
+        document.removeEventListener('visibilitychange', onVis);
         if (chartRef) { try { chartRef.destroy(); } catch (e) { /* noop */ } chartRef = null; }
       }
     };
